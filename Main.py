@@ -44,8 +44,27 @@ def inicializar_banco():
         print(f"Erro inesperado: {e}")
 
 
+def executar_consulta (query, params=None):
+    try:
+        # ESTABELECENDO CONEXÃO COM O BANCO DE DADOS
+        conexao, cursor = conexao_banco()
 
+        # GUARDANDO EM DADOS O RESULTADO DA QUERY
+        # IF CASO TENHA PARÂMETROS, ELSE CASO NÃO TENHA
+        if params is not None:
+            dados = pd.read_sql_query(query, conexao, params=params)
+        else:
+            dados = pd.read_sql_query(query, conexao)
 
+        # FECHANDO CONEXÃO COM O BANCO DE DADOS
+        conexao.close()
+        return dados
+    except sqlite3.Error as e:
+        print(f"Erro no Banco de Dados (SQLite): {e}")
+    except pd.errors.ParserError as e:
+        print(f"CSV formato fora do esperado: {e}")
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
 
 def carregar_arquivo_csv ():
 
@@ -156,8 +175,8 @@ def gerar_dados ():
         dfnf, dflc = carregar_arquivo_csv()
 
         # FUNÇÃO PANDAS QUE ENCAMINHA OS DADOS DO CSV DIRETAMENTE PRO SQL (INSERT)
-        dfnf.to_sql("nome_tabela", conexao, if_exists="append", index=False, chunksize=1000)
-        dflc.to_sql("nome_tabela", conexao, if_exists="append", index=False, chunksize=1000)
+        dfnf.to_sql("nota_fiscal", conexao, if_exists="append", index=False, chunksize=1000)
+        dflc.to_sql("lancamentos_contabeis", conexao, if_exists="append", index=False, chunksize=1000)
 
         # REALIZANDO COMMIT DAS OPERAÇÕES
         conexao.commit()
@@ -175,113 +194,358 @@ def gerar_dados ():
 
 
 def mostrar_divergencias ():
-    # ESTABELECENDO CONEXÃO COM O BANCO DE DADOS
-    conexao, cursor = conexao_banco()
+    try:
+        # CRIAÇÃO DA QUERY DO SELECT
+        query = "SELECT * FROM conciliacao WHERE status = 'DIVERGENCIA' "
 
-    # CRIAÇÃO DA QUERY DO SELECT
-    query = "SELECT * FROM conciliacao WHERE status = 'DIVERGENCIA' "
+        # FAZENDO O SELECT E ARMAZENANDO NA VARIAVEL DADOS
+        dados = executar_consulta(query)
 
-    # FAZENDO O SELECT E ARMAZENANDO NA VARIAVEL DADOS
-    dados = pd.read_sql_query(query, conexao)
+        if dados.empty:
+            print("\nNenhuma divergência encontrada.\n")
+            return
+        else:
+            print("\n===== DIVERGÊNCIAS ENCONTRADAS =====\n")
 
-    if dados.empty:
-        print("\nNenhuma divergência encontrada.\n")
-    else:
-        print("\n===== DIVERGÊNCIAS ENCONTRADAS =====\n")
-
-        # TRANSFORMANDOS OS DADOS OBTIDOS EM TUPLAS
-        for row in dados.itertuples(index=False):
-            print("====================================")
-            print(f"Nota Fiscal: {row.id_nf}")
-            print(f"Valor NF: R$ {row.valor_nota_fiscal:.2f}")
-            print(f"Valor Lançamento: R$ {row.valor_lancamento:.2f}")
-            print(f"Status: {row.status}")
-            print(f"Descrição: {row.descricao}")
-            print("====================================\n")
-    conexao.close()
-
-
-
+            # TRANSFORMANDOS OS DADOS OBTIDOS EM TUPLAS
+            for row in dados.itertuples(index=False):
+                print("====================================")
+                print(f"Nota Fiscal: {row.id_nf}")
+                print(f"Valor NF: R$ {row.valor_nota_fiscal:.2f}")
+                print(f"Valor Lançamento: R$ {row.valor_lancamento:.2f}")
+                print(f"Status: {row.status}")
+                print(f"Descrição: {row.descricao}")
+                print("====================================\n")
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
 
 
 def mostrar_conformidade():
-                # ESTABELECENDO CONEXÃO COM O BANCO DE DADOS
-                conexao, cursor = conexao_banco()
+    try:
+        # CRIAÇÃO DA QUERY DO SELECT
+        query = "SELECT * FROM conciliacao WHERE status = 'EM CONFORMIDADE' "
 
-                # CRIAÇÃO DA QUERY DO SELECT
-                query = "SELECT * FROM conciliacao WHERE status = 'EM CONFORMIDADE' "
+        # FAZENDO O SELECT E ARMAZENANDO NA VARIAVEL DADOS
+        dados = executar_consulta(query)
 
-                # FAZENDO O SELECT E ARMAZENANDO NA VARIAVEL DADOS
-                dados = pd.read_sql_query(query, conexao)
+        if dados.empty:
+            print("\nNenhuma divergência encontrada.\n")
+            return
+        else:
+            print("\n===== CONFORMIDADES ENCONTRADAS =====\n")
 
-                if dados.empty:
-                    print("\nNenhuma divergência encontrada.\n")
-                else:
-                    print("\n===== DIVERGÊNCIAS ENCONTRADAS =====\n")
+            # TRANSFORMANDOS OS DADOS OBTIDOS EM TUPLAS
+            for row in dados.itertuples(index=False):
+                print("====================================")
+                print(f"Nota Fiscal: {row.id_nf}")
+                print(f"Fornecedor: {row.fornecedor}")
+                print(f"Valor NF: R$ {row.valor_nota_fiscal:.2f}")
+                print(f"Valor Lançamento: R$ {row.valor_lancamento:.2f}")
+                print(f"Status: {row.status}")
+                print(f"Descrição: {row.descricao}")
+                print("====================================\n")
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
 
-                    # TRANSFORMANDOS OS DADOS OBTIDOS EM TUPLAS
-                    for row in dados.itertuples(index=False):
-                        print("====================================")
-                        print(f"Nota Fiscal: {row.id_nf}")
-                        print(f"Valor NF: R$ {row.valor_nota_fiscal:.2f}")
-                        print(f"Valor Lançamento: R$ {row.valor_lancamento:.2f}")
-                        print(f"Status: {row.status}")
-                        print(f"Descrição: {row.descricao}")
-                        print("====================================\n")
 
-                conexao.close()
+
+
 
 
 
 def pesquisar_por_data (data):
-    # ESTABELECENDO CONEXÃO COM O BANCO DE DADOS
-    conexao, cursor = conexao_banco()
+    try:
+        # CRIAÇÃO DA QUERY DO SELECT
+        query = "SELECT * FROM conciliacao WHERE data_conciliacao = ? "
 
-    # CRIAÇÃO DA QUERY DO SELECT
-    query = "SELECT * FROM conciliacao WHERE data_conciliacao = ? "
+        # FAZENDO O SELECT E ARMAZENANDO NA VARIAVEL DADOS
+        dados = executar_consulta(query, (data,))
 
-    # FAZENDO O SELECT E ARMAZENANDO NA VARIAVEL DADOS
-    dados = pd.read_sql_query(query, conexao, params=(data,))
+        if dados.empty:
+            print("\nNenhuma divergência encontrada.\n")
+            return
+        else:
+            print("\n===== DIVERGÊNCIAS ENCONTRADAS =====\n")
 
-    if dados.empty:
-        print("\nNenhuma divergência encontrada.\n")
-    else:
-        print("\n===== DIVERGÊNCIAS ENCONTRADAS =====\n")
+            # TRANSFORMANDOS OS DADOS OBTIDOS EM TUPLAS
+            for row in dados.itertuples(index=False):
+                print("====================================")
+                print(f"Nota Fiscal: {row.id_nf}")
+                print(f"Data da conciliação: {row.data_conciliacao}")
+                print(f"Valor NF: R$ {row.valor_nota_fiscal:.2f}")
+                print(f"Valor Lançamento: R$ {row.valor_lancamento:.2f}")
+                print(f"Status: {row.status}")
+                print(f"Descrição: {row.descricao}")
+                print("====================================\n")
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
 
-        # TRANSFORMANDOS OS DADOS OBTIDOS EM TUPLAS
+
+
+
+
+
+
+
+
+
+
+
+
+def pesquisar_a_partir_data (data):
+    try:
+        # ESTABELECENDO A QUERY DO SELECT
+        query = "SELECT * FROM conciliacao WHERE data_conciliacao > ?"
+
+        # FAZENDO O SELECT E ARMAZENANDO NA VARIAVEL DADOS
+        dados = executar_consulta(query, (data,))
+
+        if dados.empty:
+            print("\nNenhuma conciliação encontrada.\n")
+            return
+        else:
+            print("\n===== DIVERGÊNCIAS ENCONTRADAS =====\n")
+
+            # TRANSFORMANDOS OS DADOS OBTIDOS EM TUPLAS
+            for row in dados.itertuples(index=False):
+                print("====================================")
+                print(f"Nota Fiscal: {row.id_nf}")
+                print(f"Data: {row.data_conciliacao}")
+                print(f"Valor NF: R$ {row.valor_nota_fiscal:.2f}")
+                print(f"Valor Lançamento: R$ {row.valor_lancamento:.2f}")
+                print(f"Status: {row.status}")
+                print(f"Descrição: {row.descricao}")
+                print("====================================\n")
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
+
+
+def exibir_nota (id_nf):
+    try:
+        # CRIANDO QUERY DO SELECT
+        query = "SELECT * FROM nota_fiscal WHERE id_nf = ?"
+
+        # FAZENDO O SELECT E ARMAZENANDO NA VARIAVEL DADOS
+        dados = executar_consulta(query, (id_nf,))
+
+        if dados.empty:
+            print("\nNenhuma nota fiscal encontrada.\n")
+            return
+        else:
+            print("\n===== NOTAS FISCAIS ENCONTRADAS =====\n")
+
+            for row in dados.itertuples(index=False):
+                print("====================================")
+                print(f"Nota Fiscal: {row.id_nf}")
+                print(f"Chave de Acesso: {row.chave_acesso}")
+                print(f"Fornecedor: {row.fornecedor}")
+                print(f"CNPJ: {row.cnpj_fornecedor}")
+                print(f"Descrição: {row.descricao}")
+                print(f"Valor NF: R$ {row.nf_valor:.2f}")
+                print(f"Data de emissão: {row.data_emissao}")
+                print(f"Data de vencimento: {row.data_vencimento}")
+                print(f"Categoria: {row.categoria}")
+                print("====================================\n")
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
+
+def exibir_lancamento(id_lc):
+    try:
+        # CRIANDO QUERY DO SELECT
+        query = "SELECT * FROM lancamentos_contabeis WHERE id_lc = ?"
+
+        # FAZENDO O SELECT E ARMAZENANDO NA VARIAVEL DADOS
+        dados = executar_consulta(query, (id_lc,))
+
+        if dados.empty:
+            print("\nNenhum lançamento encontrada.\n")
+            return
+        else:
+            print("\n===== LANÇAMENTOS ENCONTRADOS =====\n")
+
+            for row in dados.itertuples(index=False):
+                print("====================================")
+                print(f"ID Lançamento: {row.id_lc}")
+                print(f"Nota Fiscal vinculada: {row.id_nf}")
+                print(f"Fornecedor: {row.fornecedor}")
+                print(f"CNPJ: {row.cnpj_fornecedor}")
+                print(f"Descrição: {row.descricao}")
+                print(f"Valor do Lançamento: R$ {row.lc_valor:.2f}")
+                print(f"Data do Lançamento: {row.data_lancamento}")
+                print(f"Conta Débito: {row.conta_debito}")
+                print(f"Conta Crédito: {row.conta_credito}")
+                print("====================================\n")
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
+
+def exibir_conciliacao (id_conciliacao):
+    try:
+        # CRIANDO QUERY DO SELECT
+        query = "SELECT * FROM conciliacao WHERE id_conciliacao = ?"
+
+        # FAZENDO O SELECT E ARMAZENANDO NA VARIAVEL DADOS
+        dados = executar_consulta(query, (id_conciliacao,))
+
+        if dados.empty:
+            print("\nNenhuma conciliação encontrada.\n")
+            return
+        else:
+            print("\n===== CONCILIAÇÕES ENCONTRADAS =====\n")
+
+            for row in dados.itertuples(index=False):
+
+
+                print("====================================")
+                print(f"ID Conciliação: {row.id_conciliacao}")
+                print(f"Lançamento Contábil: {row.id_lc}")
+                print(f"Nota Fiscal: {row.id_nf}")
+                print(f"Data da Conciliação: {row.data_conciliacao}")
+                print(f"Valor Nota Fiscal: R$ {row.valor_nota_fiscal:.2f}")
+                print(f"Valor Lançamento: R$ {row.valor_lancamento:.2f}")
+                print(f"Status: {row.status}")
+                print(f"Descrição: {row.descricao}")
+                print("====================================\n")
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
+
+def listar_notas():
+    try:
+        # CRIANDO A QUERY SQL
+        query = "SELECT * FROM nota_fiscal"
+
+        # FAZENDO O SELECT E ARMAZENANDO NA VARIAVEL DADOS
+        dados = executar_consulta(query)
+
+        contador = 0
+
+        if dados.empty:
+            print("\nNenhuma nota fiscal encontrada.\n")
+            return
+        else:
+            print("\n===== NOTAS FISCAIS ENCONTRADAS =====\n")
+
         for row in dados.itertuples(index=False):
+
+
             print("====================================")
             print(f"Nota Fiscal: {row.id_nf}")
-            print(f"Data da conciliação: {row.data_conciliacao}")
-            print(f"Valor NF: R$ {row.valor_nota_fiscal:.2f}")
+            print(f"Chave de Acesso: {row.chave_acesso}")
+            print(f"Fornecedor: {row.fornecedor}")
+            print(f"CNPJ: {row.cnpj_fornecedor}")
+            print(f"Descrição: {row.descricao}")
+            print(f"Valor NF: R$ {row.nf_valor:.2f}")
+            print(f"Data de emissão: {row.data_emissao}")
+            print(f"Data de vencimento: {row.data_vencimento}")
+            print(f"Categoria: {row.categoria}")
+            print("====================================\n")
+            contador += 1
+
+            if contador == 10:
+                print("Deseja vizualizar mais 10 notas fiscais? (Y/N)")
+                op = input("Digite a opção desejada: ").upper()
+
+                match op:
+                    case "Y": contador = 0
+                    case "N": return
+                    case _: print("Opção Inválida!")
+        print("Todas as notas fiscais foram exibidas.")
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
+
+
+def listar_conciliacoes():
+    try:
+        # CRIANDO A QUERY SQL
+        query = "SELECT * FROM conciliacao"
+
+        # FAZENDO O SELECT E ARMAZENANDO NA VARIAVEL DADOS
+        dados = executar_consulta(query)
+
+        contador = 0
+
+        if dados.empty:
+            print("\nNenhuma conciliação encontrada.\n")
+            return
+        else:
+            print("\n===== CONCILIAÇÕES ENCONTRADAS =====\n")
+
+        for row in dados.itertuples(index=False):
+
+            print("====================================")
+            print(f"ID Conciliação: {row.id_conciliacao}")
+            print(f"Lançamento Contábil: {row.id_lc}")
+            print(f"Nota Fiscal: {row.id_nf}")
+            print(f"Descrição: {row.descricao}")
+            print(f"Valor Nota Fiscal: R$ {row.valor_nota_fiscal:.2f}")
             print(f"Valor Lançamento: R$ {row.valor_lancamento:.2f}")
             print(f"Status: {row.status}")
-            print(f"Descrição: {row.descricao}")
+            print(f"Data da Conciliação: {row.data_conciliacao}")
             print("====================================\n")
 
-            def mostrar_conformidade():
-                # ESTABELECENDO CONEXÃO COM O BANCO DE DADOS
-                conexao, cursor = conexao_banco()
+            contador += 1
 
-                # CRIAÇÃO DA QUERY DO SELECT
-                query = "SELECT * FROM conciliacao WHERE status = 'EM CONFORMIDADE' "
+            if contador == 10:
+                print("Deseja visualizar mais 10 conciliações? (Y/N)")
+                op = input("Digite a opção desejada: ").upper()
 
-                # FAZENDO O SELECT E ARMAZENANDO NA VARIAVEL DADOS
-                dados = pd.read_sql_query(query, conexao)
+                match op:
+                    case "Y":
+                        contador = 0
+                    case "N":
+                        return
+                    case _:
+                        print("Opção Inválida!")
 
-                if dados.empty:
-                    print("\nNenhuma divergência encontrada.\n")
-                else:
-                    print("\n===== DIVERGÊNCIAS ENCONTRADAS =====\n")
+        print("Todas as conciliações foram exibidas.")
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
 
-                    # TRANSFORMANDOS OS DADOS OBTIDOS EM TUPLAS
-                    for row in dados.itertuples(index=False):
-                        print("====================================")
-                        print(f"Nota Fiscal: {row.id_nf}")
-                        print(f"Fornecedor: {row.fornecedor}")
-                        print(f"Valor NF: R$ {row.valor_nota_fiscal:.2f}")
-                        print(f"Valor Lançamento: R$ {row.valor_lancamento:.2f}")
-                        print(f"Status: {row.status}")
-                        print(f"Descrição: {row.descricao}")
-                        print("====================================\n")
-    conexao.close()
+
+def listar_lancamentos():
+    try:
+        # CRIANDO A QUERY SQL
+        query = "SELECT * FROM lancamentos_contabeis"
+
+        # FAZENDO O SELECT E ARMAZENANDO NA VARIAVEL DADOS
+        dados = executar_consulta(query)
+
+        contador = 0
+
+        if dados.empty:
+            print("\nNenhum lançamento contábil encontrado.\n")
+            return
+        else:
+            print("\n===== LANÇAMENTOS CONTÁBEIS ENCONTRADOS =====\n")
+
+        for row in dados.itertuples(index=False):
+
+            print("====================================")
+            print(f"ID Lançamento: {row.id_lc}")
+            print(f"Nota Fiscal vinculada: {row.id_nf}")
+            print(f"Fornecedor: {row.fornecedor}")
+            print(f"CNPJ: {row.cnpj_fornecedor}")
+            print(f"Descrição: {row.descricao}")
+            print(f"Valor: R$ {row.lc_valor:.2f}")
+            print(f"Data do Lançamento: {row.data_lancamento}")
+            print(f"Conta Débito: {row.conta_debito}")
+            print(f"Conta Crédito: {row.conta_credito}")
+            print("====================================\n")
+
+            contador += 1
+
+            if contador == 10:
+                print("Deseja visualizar mais 10 lançamentos? (Y/N)")
+                op = input("Digite a opção desejada: ").upper()
+
+                match op:
+                    case "Y":
+                        contador = 0
+                    case "N":
+                        return
+                    case _:
+                        print("Opção Inválida!")
+
+        print("Todos os lançamentos foram exibidos.")
+    except Exception as e:
+        print(f"Erro inesperado: {e}")
+
