@@ -20,7 +20,7 @@ def inicializar_banco():
         conexao, cursor = conexao_banco()
 
         # ABRE E RODA O SCHEMA.SQL
-        with open('schema.sql', 'r', encoding='utf-8') as f:
+        with open('db/schema.sql', 'r', encoding='utf-8') as f:
             cursor.executescript(f.read())
 
         # REALIZANDO COMMITS E FECHANDO A CONEXÃO

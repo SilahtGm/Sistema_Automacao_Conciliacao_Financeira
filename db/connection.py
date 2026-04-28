@@ -4,7 +4,7 @@ import sqlite3
 def get_connection ():
     try:
         # ESTABECENDO CONEXAO E CURSOR
-        conn = sqlite3.connect('database.db')
+        conn = sqlite3.connect('./db/database.db')
         cursor = conn.cursor()
 
         # RETORNANDO UMA TUPLA
