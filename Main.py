@@ -13,29 +13,19 @@ def conexao_banco ():
 
 def inicializar_banco():
     try:
-        # Guardando na variavel a checagem de se o banco de dados ja existe
+        # CHECANDO SE O BANCO JÁ EXISTE
         banco_existe = os.path.exists('database.db')
 
-        # Estabelecendo a conexão com o banco
+        # ESTABELECENDO CONEXÃO COM O BANCO
         conexao, cursor = conexao_banco()
 
-        # 1. Tenta abrir e rodar o Schema, guardado no arquivo schema.sql
+        # ABRE E RODA O SCHEMA.SQL
         with open('schema.sql', 'r', encoding='utf-8') as f:
             cursor.executescript(f.read())
 
-        # 2. Tenta abrir e rodar os Inserts apenas se o banco for novo, caso
-        # contrario, apenas exibira que estará estabelecendo a conexão
-        if not banco_existe:
-            with open('inserts.sql', 'r', encoding='utf-8') as g:
-                cursor.executescript(g.read())
-            print(">>> Sucesso: Banco criado e populado pela primeira vez.")
-        else:
-            print(">>> Conectado: Banco de dados já existente.")
-
-        # Salvando e fechando a conexão
+        # REALIZANDO COMMITS E FECHANDO A CONEXÃO
         conexao.commit()
         conexao.close()
-        # Excepts trazendo possiveis mensagens de erro
     except FileNotFoundError as e:
         print(f"Erro: Arquivo de script não encontrado! Detalhes: {e}")
     except sqlite3.Error as e:
@@ -176,7 +166,7 @@ def gerar_dados ():
 
         # FUNÇÃO PANDAS QUE ENCAMINHA OS DADOS DO CSV DIRETAMENTE PRO SQL (INSERT)
         dfnf.to_sql("nota_fiscal", conexao, if_exists="append", index=False, chunksize=1000)
-        dflc.to_sql("lancamentos_contabeis", conexao, if_exists="append", index=False, chunksize=1000)
+        dflc.to_sql("lancamento_contabel", conexao, if_exists="append", index=False, chunksize=1000)
 
         # REALIZANDO COMMIT DAS OPERAÇÕES
         conexao.commit()
@@ -229,7 +219,7 @@ def mostrar_conformidade():
         dados = executar_consulta(query)
 
         if dados.empty:
-            print("\nNenhuma divergência encontrada.\n")
+            print("\nNenhuma conformidade encontrada.\n")
             return
         else:
             print("\n===== CONFORMIDADES ENCONTRADAS =====\n")
@@ -262,10 +252,10 @@ def pesquisar_por_data (data):
         dados = executar_consulta(query, (data,))
 
         if dados.empty:
-            print("\nNenhuma divergência encontrada.\n")
+            print("\nNenhuma conciliação encontrada.\n")
             return
         else:
-            print("\n===== DIVERGÊNCIAS ENCONTRADAS =====\n")
+            print("\n===== CONCILIAÇÕES ENCONTRADAS (POR DATA) =====\n")
 
             # TRANSFORMANDOS OS DADOS OBTIDOS EM TUPLAS
             for row in dados.itertuples(index=False):
@@ -304,7 +294,7 @@ def pesquisar_a_partir_data (data):
             print("\nNenhuma conciliação encontrada.\n")
             return
         else:
-            print("\n===== DIVERGÊNCIAS ENCONTRADAS =====\n")
+            print("\n===== CONCILIAÇÕES ENCONTRADAS (A PARTIR DE UMA DATA) =====\n")
 
             # TRANSFORMANDOS OS DADOS OBTIDOS EM TUPLAS
             for row in dados.itertuples(index=False):
@@ -352,7 +342,7 @@ def exibir_nota (id_nf):
 def exibir_lancamento(id_lc):
     try:
         # CRIANDO QUERY DO SELECT
-        query = "SELECT * FROM lancamentos_contabeis WHERE id_lc = ?"
+        query = "SELECT * FROM lancamento_contabel WHERE id_lc = ?"
 
         # FAZENDO O SELECT E ARMAZENANDO NA VARIAVEL DADOS
         dados = executar_consulta(query, (id_lc,))
@@ -504,7 +494,7 @@ def listar_conciliacoes():
 def listar_lancamentos():
     try:
         # CRIANDO A QUERY SQL
-        query = "SELECT * FROM lancamentos_contabeis"
+        query = "SELECT * FROM lancamento_contabel"
 
         # FAZENDO O SELECT E ARMAZENANDO NA VARIAVEL DADOS
         dados = executar_consulta(query)
