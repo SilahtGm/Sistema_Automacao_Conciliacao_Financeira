@@ -82,3 +82,6 @@ class ConciliacaoRepository:
             print(f"CSV formato fora do esperado: {e}")
         except Exception as e:
             print(f"Erro inesperado: {e}")
+
+
+    

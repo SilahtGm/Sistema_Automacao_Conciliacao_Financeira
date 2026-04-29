@@ -1,4 +1,5 @@
 from repositories.conciliacao_repository import ConciliacaoRepository
+from services.utils_services import validar_data_especifica
 from views.conciliacao_view import view_divergencias, view_conformidades, view_pesquisa_por_data, \
     view_pesquisa_a_partir_data, view_conciliacao_por_id, view_listar_conciliacoes
 
@@ -29,6 +30,7 @@ def pesquisar_por_data (data):
     try:
         # INSTANCIANDO METODO DO SERVICE
         services = ConciliacaoRepository()
+        validar_data_especifica(data)
         dados = services.listar_conciliacao_por_data(data)
 
         view_pesquisa_por_data(dados)
@@ -41,6 +43,7 @@ def pesquisar_a_partir_data (data):
     try:
         # INSTANCIANDO METODO DO SERVICE
         services = ConciliacaoRepository()
+        validar_data_especifica(data)
         dados = services.listar_conciliacao_pos_data(data)
 
         view_pesquisa_a_partir_data(dados)

@@ -114,11 +114,11 @@ def menu_operacional():
                 mostrar_conformidade()
                 pausar()
             case "3":
-                data = input("Digite a data (YYYY-MM-DD): ")
+                data = input("Digite a data (DD-MM-YYYY): ")
                 pesquisar_por_data(data)
                 pausar()
             case "4":
-                data = input("Digite a data inicial (YYYY-MM-DD): ")
+                data = input("Digite a data inicial (DD-MM-YYYY): ")
                 pesquisar_a_partir_data(data)
                 pausar()
             case "5":
