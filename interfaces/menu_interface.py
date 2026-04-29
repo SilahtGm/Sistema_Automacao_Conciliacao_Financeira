@@ -1,5 +1,5 @@
 from db.init_db import inicializar_banco
-from services.conciliacoes_service import listar_conciliacoes, mostrar_divergencias, mostrar_conformidade, \
+from services.conciliacao_service import listar_conciliacoes, mostrar_divergencias, mostrar_conformidade, \
     pesquisar_por_data, pesquisar_a_partir_data, exibir_conciliacao_por_id
 from services.csv_service import gerar_dados
 from services.lancamentos_service import listar_lancamentos, exibir_lancamento
@@ -34,7 +34,7 @@ def menu_principal():
         print("===========================================================")
         print("1 - Área Operacional")
         print("2 - Área Administrativa")
-        print("0 - Encerrar Sistema")
+        print("0 - Voltar")
         print("===========================================================")
 
         opcao = input("Digite a opção desejada: ")
@@ -59,11 +59,10 @@ def menu_administrativo():
         print("===========================================================")
         print("                ÁREA ADMINISTRATIVA - SACF")
         print("===========================================================")
-        print("1 - Inicializar Banco de Dados")
-        print("2 - Carregar Dados dos CSVs")
-        print("3 - Listar Todas as Notas Fiscais")
-        print("4 - Listar Todos os Lançamentos")
-        print("5 - Listar Todas as Conciliações")
+        print("1 - Carregar Dados dos CSVs")
+        print("2 - Listar Todas as Notas Fiscais")
+        print("3 - Listar Todos os Lançamentos")
+        print("4 - Listar Todas as Conciliações")
         print("0 - Voltar")
         print("===========================================================")
 
@@ -71,20 +70,16 @@ def menu_administrativo():
 
         match opcao:
             case "1":
-                inicializar_banco()
-                print("\nBanco inicializado com sucesso!")
-                pausar()
-            case "2":
                 gerar_dados()
                 print("\nDados carregados com sucesso!")
                 pausar()
-            case "3":
+            case "2":
                 listar_notas()
                 pausar()
-            case "4":
+            case "3":
                 listar_lancamentos()
                 pausar()
-            case "5":
+            case "4":
                 listar_conciliacoes()
                 pausar()
             case "0":

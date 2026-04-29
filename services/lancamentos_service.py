@@ -5,8 +5,8 @@ from views.lancamentos_view import view_exibir_lancamento, view_listar_lancament
 def exibir_lancamento(id_lc):
     try:
         # INSTANCIANDO SERVICES
-        service = LancamentoContabilRepository
-        dados = service.buscar_por_id()
+        service = LancamentoContabilRepository()
+        dados = service.buscar_por_id(id_lc)
         view_exibir_lancamento(dados)
     except Exception as e:
         print(f"Erro inesperado: {e}")
@@ -14,7 +14,7 @@ def exibir_lancamento(id_lc):
 def listar_lancamentos():
     try:
         # INSTANCIANDO SERVICE
-        service = LancamentoContabilRepository
+        service = LancamentoContabilRepository()
         dados = service.listar_todas()
 
         view_listar_lancamento(dados)

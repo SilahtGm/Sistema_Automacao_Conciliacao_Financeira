@@ -5,8 +5,8 @@ from views.nota_fiscal_view import view_exibir_por_id, view_exibir_todos
 def exibir_nota (id_nf):
     try:
         # INSTANCIANDO SERVICES
-        service = NotaFiscalRepository
-        dados = service.exibir_nota(id_nf)
+        service = NotaFiscalRepository()
+        dados = service.buscar_por_id(id_nf)
         view_exibir_por_id(dados)
     except Exception as e:
         print(f"Erro inesperado: {e}")
@@ -14,7 +14,7 @@ def exibir_nota (id_nf):
 def listar_notas():
     try:
         # INSTANCIANDO SERVICE
-        service = NotaFiscalRepository
+        service = NotaFiscalRepository()
         dados = service.listar_todas()
 
         view_exibir_todos(dados)

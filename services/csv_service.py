@@ -24,6 +24,40 @@ def gerar_dados ():
         # CARREGANDO ARQUIVO E ARMAZENANDO
         nf, lc = carregar_arquivo_csv()
 
+        # COLUNAS NECESSÁRIAS PARA INSERT NO BANCO DE DADOS
+        required_nf_columns = [
+            "id_nf",
+            "chave_acesso",
+            "fornecedor",
+            "cnpj_fornecedor",
+            "descricao",
+            "nf_valor",
+            "data_emissao",
+            "data_vencimento",
+            "categoria"
+        ]
+        # Validação Nota Fiscal
+        for column in required_nf_columns:
+            if column not in nf.columns:
+                raise ValueError(f"Coluna obrigatória ausente: {column}")
+
+        # COLUNAS NECESSÁRIAS PARA INSERT NO BANCO DE DADOS
+        required_lc_columns = [
+            "id_lc",
+            "id_nf",
+            "fornecedor",
+            "cnpj_fornecedor",
+            "descricao",
+            "lc_valor",
+            "data_lancamento",
+            "conta_debito",
+            "conta_credito"
+        ]
+        # Validação Lançamento Contábil
+        for column in required_lc_columns:
+            if column not in lc.columns:
+                raise ValueError(f"Coluna obrigatória ausente: {column}")
+
         # FUNÇÃO PANDAS QUE ENCAMINHA OS DADOS DO CSV DIRETAMENTE PRO SQL (INSERT)
         nf.to_sql("nota_fiscal", conn, if_exists="append", index=False, chunksize=1000)
         lc.to_sql("lancamento_contabel", conn, if_exists="append", index=False, chunksize=1000)

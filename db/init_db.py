@@ -2,26 +2,29 @@ import os
 from db.connection import get_connection
 import sqlite3
 
+from db.paths import paths
+
+
 # FUNÇÃO DE CRIAÇÃO/INICIALIZAÇÃO DO BANCO DE DADOS
 def inicializar_banco():
     try:
+        # OBTENDO PATHS
+        db_path, schema_path = paths()
 
-        # VERIFICANDO SE O BANCO JÁ EXISTE
-        bd = os.path.exists("./db/database.db")
-
-        if bd:
+        # SE O BANCO JÁ EXISTIR, FINALIZA A FUNÇÃO
+        if os.path.exists(db_path):
             return
+        else:
+            # ESTABELECENDO CONEXÃO COM O BANCO
+            conn, cursor = get_connection()
 
-        # ESTABELECENDO CONEXÃO COM O BANCO
-        conn, cursor = get_connection()
+            # ABRE E RODA O SCHEMA.SQL
+            with open(schema_path, 'r', encoding='utf-8') as f:
+                cursor.executescript(f.read())
 
-        # ABRE E RODA O SCHEMA.SQL
-        with open('./db/schema.sql', 'r', encoding='utf-8') as f:
-            cursor.executescript(f.read())
-
-        # REALIZANDO COMMITS E FECHANDO A CONEXÃO
-        conn.commit()
-        conn.close()
+            # REALIZANDO COMMITS E FECHANDO A CONEXÃO
+            conn.commit()
+            conn.close()
 
     except FileNotFoundError as e:
         print(f"Erro: Arquivo de script não encontrado! Detalhes: {e}")

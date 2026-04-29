@@ -47,7 +47,7 @@ class ConciliacaoRepository:
     def listar_conciliacao_por_data(self, data_conciliacao):
         try:
             conn, cursor = get_connection()
-            data = pd.read_sql_query("SELECT * FROM conciliacao WHERE data_conciliacao = ? ", conn, data_conciliacao)
+            data = pd.read_sql_query("SELECT * FROM conciliacao WHERE data_conciliacao = ? ", conn, params=(data_conciliacao,))
             conn.close()
             return data
         except sqlite3.Error as e:
@@ -60,7 +60,7 @@ class ConciliacaoRepository:
     def listar_conciliacao_pos_data(self, data_conciliacao):
         try:
             conn, cursor = get_connection()
-            data = pd.read_sql_query("SELECT * FROM conciliacao WHERE data_conciliacao > ?", conn, data_conciliacao)
+            data = pd.read_sql_query("SELECT * FROM conciliacao WHERE data_conciliacao > ?", conn, params=(data_conciliacao,))
             conn.close()
             return data
         except sqlite3.Error as e:
