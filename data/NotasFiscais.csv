@@ -1,3 +1,6 @@
 id_nf,chave_acesso,fornecedor,cnpj_fornecedor,descricao,nf_valor,data_emissao,data_vencimento,categoria
-1,NFE123456789,Fornecedor A,12345678000199,Compra de materiais,1500.0,2026-04-20,2026-05-20,Material Escritorio
-2,NFE987654321,Fornecedor B,98765432000188,Servico de consultoria,3000.0,2026-04-22,2026-05-22,Servicos
+1,0001A1B2C3D4E5F6,Fornecedor Alpha,12.345.678/0001-90,Compra de materiais,1500.0,2026-04-01,2026-04-30,Materiais
+2,0002B2C3D4E5F6A7,Fornecedor Beta,98.765.432/0001-10,Serviços de TI,3200.0,2026-04-03,2026-05-03,Serviços
+3,0003C3D4E5F6A7B8,Fornecedor Gamma,11.222.333/0001-44,Equipamentos,5000.0,2026-04-05,2026-05-05,Imobilizado
+4,0004D4E5F6A7B8C9,Fornecedor Delta,22.333.444/0001-55,Manutenção,800.0,2026-04-07,2026-05-07,Serviços
+5,0005E5F6A7B8C9D0,Fornecedor Epsilon,33.444.555/0001-66,Consultoria,2500.0,2026-04-10,2026-05-10,Serviços

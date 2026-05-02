@@ -14,13 +14,14 @@ def carregar_arquivo_csv():
         caminho_nf = os.path.join(ROOT_DIR, "data", "NotasFiscais.csv")
         caminho_lc = os.path.join(ROOT_DIR, "data", "LancamentosContabeis.csv")
 
-        nf = pd.read_csv(caminho_nf, encoding="utf-8", sep=";")
-        lc = pd.read_csv(caminho_lc, encoding="utf-8", sep=";")
+        nf = pd.read_csv(caminho_nf, encoding="utf-8", sep=",")
+        lc = pd.read_csv(caminho_lc, encoding="utf-8", sep=",")
 
         return nf, lc
 
     except FileNotFoundError as e:
         print(f"Erro: Arquivo não encontrado. Detalhes: {e}")
+        return None, None
 
 
 # FUNÇÃO RESPONSÁVEL PELO PROCESSAMENTO DO CSV PRO BANCO DE DADOS
@@ -31,6 +32,8 @@ def gerar_dados ():
 
         # CARREGANDO ARQUIVO E ARMAZENANDO
         nf, lc = carregar_arquivo_csv()
+        if nf is None or lc is None:
+            return
 
         # COLUNAS NECESSÁRIAS PARA INSERT NO BANCO DE DADOS
         required_nf_columns = [
@@ -49,6 +52,7 @@ def gerar_dados ():
             if column not in nf.columns:
                 raise ValueError(f"Coluna obrigatória ausente: {column}")
 
+
         # COLUNAS NECESSÁRIAS PARA INSERT NO BANCO DE DADOS
         required_lc_columns = [
             "id_lc",
@@ -66,9 +70,10 @@ def gerar_dados ():
             if column not in lc.columns:
                 raise ValueError(f"Coluna obrigatória ausente: {column}")
 
+
         # FUNÇÃO PANDAS QUE ENCAMINHA OS DADOS DO CSV DIRETAMENTE PRO SQL (INSERT)
-        nf.to_sql("nota_fiscal", conn, if_exists="append", index=False, chunksize=1000)
-        lc.to_sql("lancamento_contabel", conn, if_exists="append", index=False, chunksize=1000)
+        nf.to_sql("nota_fiscal", conn, if_exists="replace", index=False, chunksize=1000)
+        lc.to_sql("lancamento_contabil", conn, if_exists="replace", index=False, chunksize=1000)
 
         # REALIZANDO COMMIT DAS OPERAÇÕES
         conn.commit()

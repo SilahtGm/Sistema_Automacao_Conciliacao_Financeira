@@ -71,7 +71,6 @@ def menu_administrativo():
         match opcao:
             case "1":
                 gerar_dados()
-                print("\nDados carregados com sucesso!")
                 pausar()
             case "2":
                 listar_notas()
