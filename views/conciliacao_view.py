@@ -26,7 +26,6 @@ def view_conformidades (dados):
         for row in dados.itertuples(index=False):
             print("====================================")
             print(f"Nota Fiscal: {row.id_nf}")
-            print(f"Fornecedor: {row.fornecedor}")
             print(f"Valor NF: R$ {row.valor_nota_fiscal:.2f}")
             print(f"Valor Lançamento: R$ {row.valor_lancamento:.2f}")
             print(f"Status: {row.status}")

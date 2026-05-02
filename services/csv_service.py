@@ -71,11 +71,43 @@ def gerar_dados ():
                 raise ValueError(f"Coluna obrigatória ausente: {column}")
 
 
-        # FUNÇÃO PANDAS QUE ENCAMINHA OS DADOS DO CSV DIRETAMENTE PRO SQL (INSERT)
-        nf.to_sql("nota_fiscal", conn, if_exists="replace", index=False, chunksize=1000)
-        lc.to_sql("lancamento_contabil", conn, if_exists="replace", index=False, chunksize=1000)
+        # TRANSFORMANDO EM UMA LISTA
+        nf_data = list(nf.itertuples(index=False, name=None))
 
-        # REALIZANDO COMMIT DAS OPERAÇÕES
+        cursor.executemany("""
+            INSERT INTO nota_fiscal (
+                id_nf,
+                chave_acesso,
+                fornecedor,
+                cnpj_fornecedor,
+                descricao,
+                nf_valor,
+                data_emissao,
+                data_vencimento,
+                categoria
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, nf_data)
+
+        lc_data = list(lc.itertuples(index=False, name=None))
+
+        cursor.executemany("""
+            INSERT INTO lancamento_contabil (
+                id_lc,
+                id_nf,
+                fornecedor,
+                cnpj_fornecedor,
+                descricao,
+                lc_valor,
+                data_lancamento,
+                conta_debito,
+                conta_credito
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, lc_data)
+
+
+        # SALVANDO E FECHANDO a CONEXÃO COM O BANCO
         conn.commit()
         conn.close()
 
