@@ -1,18 +1,26 @@
+import os
 import sqlite3
 import pandas as pd
-from db.connection import get_connection
+from db.connection_db import get_connection
 
-def carregar_arquivo_csv ():
+def carregar_arquivo_csv():
 
-    # CRIANDO VARIAVEIS
-    csv_nf = "NotasFiscais.csv"
-    csv_lc = "LancamentosContabeis.csv"
     try:
-        nf = pd.read_csv(csv_nf, encoding= "utf-8", sep=";")
-        lc = pd.read_csv(csv_lc, encoding="utf-8", sep=";")
-        return nf,lc
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+        # VOLTA UMA PASTA (sai de services)
+        ROOT_DIR = os.path.dirname(BASE_DIR)
+
+        caminho_nf = os.path.join(ROOT_DIR, "data", "NotasFiscais.csv")
+        caminho_lc = os.path.join(ROOT_DIR, "data", "LancamentosContabeis.csv")
+
+        nf = pd.read_csv(caminho_nf, encoding="utf-8", sep=";")
+        lc = pd.read_csv(caminho_lc, encoding="utf-8", sep=";")
+
+        return nf, lc
+
     except FileNotFoundError as e:
-        print(f"Erro: Arquivo de script não encontrado! Esperado: {csv_nf} e {csv_lc} .Detalhes: {e}")
+        print(f"Erro: Arquivo não encontrado. Detalhes: {e}")
 
 
 # FUNÇÃO RESPONSÁVEL PELO PROCESSAMENTO DO CSV PRO BANCO DE DADOS

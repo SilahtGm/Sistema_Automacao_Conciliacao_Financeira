@@ -1,6 +1,6 @@
 import sqlite3
 
-from db.paths import paths
+from db.paths_db import paths
 
 
 # FUNÇÃO DE CONECTIVIDADE COM O BANCO DE DADOS

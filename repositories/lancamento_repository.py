@@ -1,4 +1,4 @@
-from db.connection import get_connection
+from db.connection_db import get_connection
 import sqlite3
 import pandas as pd
 

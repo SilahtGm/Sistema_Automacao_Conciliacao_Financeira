@@ -1,0 +1,3 @@
+id_lc,id_nf,fornecedor,cnpj_fornecedor,descricao,lc_valor,data_lancamento,conta_debito,conta_credito
+1,1,Fornecedor A,12345678000199,Pagamento parcial materiais,1400.0,2026-04-21,Despesa Material,Banco Conta Corrente
+2,2,Fornecedor B,98765432000188,Pagamento integral consultoria,3000.0,2026-04-23,Despesa Servicos,Banco Conta Corrente

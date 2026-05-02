@@ -1,8 +1,8 @@
 import os
-from db.connection import get_connection
+from db.connection_db import get_connection
 import sqlite3
 
-from db.paths import paths
+from db.paths_db import paths
 
 
 # FUNÇÃO DE CRIAÇÃO/INICIALIZAÇÃO DO BANCO DE DADOS

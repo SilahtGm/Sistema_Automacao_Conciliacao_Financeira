@@ -1,5 +1,5 @@
 import sqlite3
-from db.connection import get_connection
+from db.connection_db import get_connection
 import pandas as pd
 
 class ConciliacaoRepository:

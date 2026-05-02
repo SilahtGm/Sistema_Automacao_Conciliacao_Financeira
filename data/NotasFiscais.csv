@@ -1,0 +1,3 @@
+id_nf,chave_acesso,fornecedor,cnpj_fornecedor,descricao,nf_valor,data_emissao,data_vencimento,categoria
+1,NFE123456789,Fornecedor A,12345678000199,Compra de materiais,1500.0,2026-04-20,2026-05-20,Material Escritorio
+2,NFE987654321,Fornecedor B,98765432000188,Servico de consultoria,3000.0,2026-04-22,2026-05-22,Servicos
